@@ -120,6 +120,16 @@ dev = [
 
 inference = [
     "torch-memory-saver",
+    # FA2 matches NGC PyTorch 26.09, excluding its local build suffix.
+    "flash-attn==2.8.3.post1; sys_platform == 'linux'",
+    # FA4's image version (b24) pins CUTLASS below cuDNN Frontend's requirement.
+    "flash-attn-4[cu13]==4.0.0b36; sys_platform == 'linux'",
+    "tilelang; sys_platform == 'linux'",
+]
+
+nvshmem = [
+    "nvshmem4py-cu13>=0.4.1; sys_platform == 'linux'",
+    "cupy-cuda13x>=14.2.0; sys_platform == 'linux'",
 ]
 
 otel = [
@@ -196,8 +206,11 @@ no_pypi_wheels = ["flash_mla", "emerging_optimizers", "deep_gemm"]
 managed = true
 default-groups = ["linting", "build", "test"]
 # CUTLASS 4.8 moved CuTe APIs used by older Quack releases.
-constraint-dependencies = ["quack-kernels>=0.6.5"]
+constraint-dependencies = [
+    "quack-kernels>=0.6.5",
+]
 no-build-isolation-package = [
+    "flash-attn",
     "causal-conv1d",
     "flash_mla",
     "mamba-ssm",
@@ -218,6 +231,8 @@ override-dependencies = [
     "triton; sys_platform == 'never'",
     "tilelang==0.1.12",
     "apache-tvm-ffi==0.1.11",
+    # Match the existing dev Dockerfile runtime; PyPI Torch otherwise selects 3.4.5.
+    "nvidia-nvshmem-cu13==3.7.1",
     # TorchX 0.7.0 caps urllib3 below 1.27; require the fix for GHSA-38jv-5279-wg99.
     "urllib3>=2.6.3",
 ]
